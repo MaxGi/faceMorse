@@ -1,1 +1,1 @@
-Core software for the Ai-Museums interactive data exploration and training tools.
+Core software for the "Face morse" installation 2025
