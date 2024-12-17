@@ -77,7 +77,7 @@ with contextlib.ExitStack() as stack:
     
     device_infos = dai.Device.getAllAvailableDevices()
     
-    while len(device_infos) != 2:
+    while len(device_infos) != 1:
         print("Only found", len(device_infos), "device and will check again")
         time.sleep(4)
         device_infos = dai.Device.getAllAvailableDevices()
