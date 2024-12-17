@@ -4,7 +4,7 @@ from depthai_sdk.classes.nn_results import ImgLandmarks
 from depthai_sdk.visualize.bbox import BoundingBox
 import cv2
 import depthai as dai
-import PySimpleGUI as sg
+#import PySimpleGUI as sg
 
 # Confidence threshold for the facemesh model
 THRESHOLD = 0.3
@@ -67,10 +67,11 @@ with OakCamera() as oak:
     
     color = oak.create_camera('color')
 
-    det_nn = oak.create_nn('face-detection-retail-0004', color)
+    det_nn = oak.create_nn('models/face-detection-retail-0004_openvino_2022.1_6shave.blob', color, nn_type="mobilenet")
     # AspectRatioResizeMode has to be CROP for 2-stage pipelines at the moment
     det_nn.config_nn(resize_mode='crop')
 
+#    facemesh_nn = oak.create_nn('models/facemesh_192x192_openvino_2022.1_6shave.blob', input=det_nn, nn_type="mobilenet")
     facemesh_nn = oak.create_nn('facemesh_192x192', input=det_nn)
     facemesh_nn.config_multistage_nn(scale_bb=(5,5))
 

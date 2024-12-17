@@ -20,7 +20,7 @@ with OakCamera(device_id) as oak:
     
     
     color = oak.create_camera('color')
-    color.setBrightness(5)
+#    color.setBrightness(5)
     det_nn = oak.create_nn('models/face-detection-retail-0004_openvino_2022.1_6shave.blob', color, nn_type="mobilenet")
     det_nn.config_nn(resize_mode='crop')
 
