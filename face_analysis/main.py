@@ -4,7 +4,11 @@ from depthai_sdk.classes.nn_results import ImgLandmarks
 from depthai_sdk.visualize.bbox import BoundingBox
 import cv2
 import depthai as dai
+import screeninfo
+import numpy as np
+
 #import PySimpleGUI as sg
+
 
 # Confidence threshold for the facemesh model
 THRESHOLD = 0.3
@@ -18,6 +22,25 @@ NoseTip = 1
 NostrilLeft = 205
 NostrilRight = 425
 
+screen_id = 0
+is_color = False
+
+
+print(screeninfo.get_monitors())
+# get the size of the screen
+screen = screeninfo.get_monitors()[screen_id]
+width, height = screen.width, screen.height
+
+
+smooth = np.full((468, 2), 0)
+
+window_name = 'projector'
+cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+cv2.moveWindow(window_name, screen.x - 1, screen.y - 1)
+cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
+
+last_landmarks = []
+
 # We will be saving the passthrough frames so we can draw landmarks on it
 pass_f = None
 def pass_cb(packet):
@@ -30,60 +53,49 @@ def draw_rect(frame, color, top_left, bottom_right):
 def cb(packet: TwoStagePacket):
     global pass_f
     vis: Visualizer = packet.visualizer
-    vis.draw(packet.frame)
     frame_full = packet.frame
 
-    # face-detection-retail-0004 is 1:1 aspect ratio
     pre_det_crop_bb = BoundingBox().resize_to_aspect_ratio(frame_full.shape, (1, 1), resize_mode='crop')
-    # draw_rect(frame_full, (255, 127, 0), *pre_det_crop_bb.denormalize(frame_full.shape))
+
+    out_frame = np.zeros([720,1280,3],dtype=np.uint8)
+    out_frame.fill(0) # or img[:] = 255
 
     for det, imgLdms in zip(packet.detections, packet.nnData):
         if imgLdms is None or imgLdms.landmarks is None:
             continue
         imgLdms: ImgLandmarks
-        
+
         img_det: dai.ImgDetection = det.img_detection
         det_bb = pre_det_crop_bb.get_relative_bbox(BoundingBox(img_det))
-        # draw_rect(frame_full, (255, 0, 0), *det_bb.denormalize(frame_full.shape))
 
         padding_bb = det_bb.add_padding(0.05, pre_det_crop_bb)
         draw_rect(frame_full, (0, 0, 255), *padding_bb.denormalize(frame_full.shape))
-        
-        print("Num landmarks",len(imgLdms.landmarks))
-        for ldm, clr in zip(imgLdms.landmarks, imgLdms.colors):
-            
+        #for i, (name, age) in enumerate(zip(names, ages)):
+#        print("list size:", len(imgLdms.landmarks))
+        for i, (ldm, clr) in enumerate(zip(imgLdms.landmarks, imgLdms.colors)):
             mapped_ldm = padding_bb.map_point(*ldm).denormalize(frame_full.shape)
-            cv2.circle(frame_full, center=mapped_ldm, radius=1, color=clr, thickness=-1)
+            smooth[i][0] = 0.9 * smooth[i][0] + 0.1 * mapped_ldm[0]
+            smooth[i][1] = 0.9 * smooth[i][1] + 0.1 * mapped_ldm[1]
 
-            if pass_f is not None:
-                cv2.circle(pass_f, center=(int(ldm[0]*192), int(ldm[1]*192)), radius=1, color=clr, thickness=-1)
+            #print(mapped_ldm)
+            cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 250, 250), thickness=-1)
 
-    cv2.imshow('Facemesh', frame_full)
-    if pass_f is not None:
-        cv2.imshow('Passthrough', cv2.pyrUp(pass_f))
-        
+    cv2.imshow(window_name, out_frame)
 
 with OakCamera() as oak:
-    
+
     color = oak.create_camera('color')
 
     det_nn = oak.create_nn('models/face-detection-retail-0004_openvino_2022.1_6shave.blob', color, nn_type="mobilenet")
     # AspectRatioResizeMode has to be CROP for 2-stage pipelines at the moment
     det_nn.config_nn(resize_mode='crop')
 
-#    facemesh_nn = oak.create_nn('models/facemesh_192x192_openvino_2022.1_6shave.blob', input=det_nn, nn_type="mobilenet")
+#    facemesh_nn = oak.create_nn("models/facemesh_192x192_openvino_2022.1_6shave.blob", input=det_nn, nn_type="mobilenet")
     facemesh_nn = oak.create_nn('facemesh_192x192', input=det_nn)
     facemesh_nn.config_multistage_nn(scale_bb=(5,5))
 
-    # Send the 2stage NN results to the callback
     oak.visualize(facemesh_nn, callback=cb).detections(fill_transparency=0)
-    
-    # Send the crops to the passthrough callback
+
     oak.callback(facemesh_nn.out.twostage_crops, pass_cb)
-    oak.visualize(det_nn.out.passthrough)
 
-    # oak.show_graph() # Show pipeline graph
     oak.start(blocking=True)  # This call will block until the app is stopped (by pressing 'Q' button)
-
-    #imgbytes = cv2.imencode('.png', frame)[1].tobytes()
-    #window['-IMAGE-'].update(data=imgbytes)
