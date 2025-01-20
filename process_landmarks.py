@@ -42,7 +42,6 @@ class FaceAalysis:
         self.landmarks["right_iris_landmarks"] = []
         self.landmarks["nose_landmarks"] = []
         self.landmarks["mouth_landmarks"] = []
-        self.landmarks["mouth_landmarks"] = []
         self.landmarks["head_border_landmarks"] = []
         self.landmarks["face_outline"] = [] 
     
@@ -54,8 +53,25 @@ class FaceAalysis:
         self.landmarks["nose_height"] = []
         self.landmarks["nose_width"] = []
         self.landmarks["all_landmarks"] = [] 
+        self.landmarks["face_points"] = []
         
-        
+    def relativeValue(self, data, img):
+        self.landmarks["face_points"] = []
+        pnt_zero = (0,0)
+        out_data = []
+        for i, lm in enumerate(data):
+            h, w, ic = img.shape
+            x, y = int(lm.x * w), int(lm.y * h)  # Convert normalized coordinates to pixel values
+            if i == 0:
+                pnt_zero = (x, y)
+            else:
+                b = (x, y)
+                dst = distance.euclidean(pnt_zero, b)
+                out_data.append(dst)
+            
+            self.landmarks["face_points"].append((x, y))
+            
+        return out_data
         
     def sortData(self, faceLms, img):
         self.landmarks = {}
@@ -79,43 +95,41 @@ class FaceAalysis:
         self.landmarks["all_landmarks"] = [] 
         # Iterate over detected faces (here, max_num_faces = 1, so usually one face)
         
-        for i, lm in enumerate(faceLms.landmark):
-            
-            h, w, ic = img.shape  # Get image height, width, and channel count
-            x, y = int(lm.x * w), int(lm.y * h)  # Convert normalized coordinates to pixel values
-            
+        relative_landmarks = self.relativeValue(faceLms.landmark, img)
+        
+        for i, pnt in enumerate(relative_landmarks):
             # Store the coordinates of all landmarks
-            self.landmarks["all_landmarks"].append((x, y))
+            self.landmarks["all_landmarks"].append(pnt)
 
             # Store specific feature landmarks based on the predefined indices
             if i in self.LEFT_EYE_LANDMARKS:
-                self.landmarks["left_eye_landmarks"].append((x, y))  # Left eye
+                self.landmarks["left_eye_landmarks"].append(pnt)  # Left eye
             if i in self.RIGHT_EYE_LANDMARKS:
-                self.landmarks["right_eye_landmarks"].append((x, y))  # Right eye
+                self.landmarks["right_eye_landmarks"].append(pnt)  # Right eye
             if i in self.LEFT_IRIS_LANDMARKS:
-                self.landmarks["left_iris_landmarks"].append((x, y))  # Left iris
+                self.landmarks["left_iris_landmarks"].append(pnt)  # Left iris
             if i in self.RIGHT_IRIS_LANDMARKS:
-                self.landmarks["right_iris_landmarks"].append((x, y))  # Right iris
+                self.landmarks["right_iris_landmarks"].append(pnt)  # Right iris
             if i in self.NOSE_LANDMARKS:
-                self.landmarks["nose_landmarks"].append((x, y))  # Nose
+                self.landmarks["nose_landmarks"].append(pnt)  # Nose
             if i in self.MOUTH_LANDMARKS:
-                self.landmarks["mouth_landmarks"].append((x, y))  # Mouth
+                self.landmarks["mouth_landmarks"].append(pnt)  # Mouth
             if i in self.FACE_OUTLINE:
-                self.landmarks["face_outline"].append((x, y))  # Mouth
+                self.landmarks["face_outline"].append(pnt)  # Mouth
             if i in self.LEFT_EYEBROW_LANDMARKS:
-                self.landmarks["left_eyebrow"].append((x, y))
+                self.landmarks["left_eyebrow"].append(pnt)
             if i in self.RIGHT_EYEBROW_LANDMARKS:
-                self.landmarks["right_eyebrow"].append((x, y))
+                self.landmarks["right_eyebrow"].append(pnt)
             if i in self.MOUTH_OPENNESS_LANDMARKS:
-                self.landmarks["mouth_openness"].append((x, y))
+                self.landmarks["mouth_openness"].append(pnt)
             if i in self.LEFT_EYE_OPENNESS_LANDMARKS:
-                self.landmarks["left_eye_openness"].append((x, y))
+                self.landmarks["left_eye_openness"].append(pnt)
             if i in self.RIGHT_EYE_OPENNESS_LANDMARKS:
-                self.landmarks["right_eye_openness"].append((x, y))
+                self.landmarks["right_eye_openness"].append(pnt)
             if i in self.NOSE_HEIGHT_LANDMARKS:
-                self.landmarks["nose_height"].append((x, y))
+                self.landmarks["nose_height"].append(pnt)
             if i in self.NOSE_WIDTH_LANDMARKS:
-                self.landmarks["nose_width"].append((x, y))
+                self.landmarks["nose_width"].append(pnt)
                     
         return self.landmarks
         
