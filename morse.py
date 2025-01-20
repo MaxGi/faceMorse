@@ -3,6 +3,14 @@ import time
 import random
 
 
+time_unit = 0.05
+
+
+letter_space = 3 * time_unit
+word_space = 7 * time_unit
+dash = 3 * time_unit
+dot = 1 * time_unit
+
 morse_alphabet = {
     'A': [0, 1],
     'B': [1, 0, 0, 0],
@@ -39,9 +47,13 @@ morse_alphabet = {
     '7': [1, 1, 0, 0, 0],
     '8': [1, 1, 1, 0, 0],
     '9': [1, 1, 1, 1, 0],
-    '0': [1, 1, 1, 1, 1]
+    '0': [1, 1, 1, 1, 1],
+    '.': [0, 1, 0, 1, 0, 1],
+    ',': [1, 1, 0, 0, 1, 1]
 }
 
+
+test_send = "Morse code is a method of encoding text into sequences of dots and dashes. Each letter, number, and symbol has a unique combination"
 
 #Morse down when out_state == False
 
@@ -54,9 +66,36 @@ GPIO.output(out_pin, out_state)
 
 time.sleep(1)
 
-while True:
-    GPIO.output(out_pin, out_state)
-    out_state = not out_state
-    time.sleep(random.uniform(0.01, 0.25))
+def sendMorse(mess):
+    mess = mess.upper()
+    for letter in mess:
+        if letter == " ":
+            print(" ")
+            GPIO.output(out_pin, True)
+            time.sleep(word_space)
+        else:
+            print(letter)
+            for i in morse_alphabet[letter]:
+                GPIO.output(out_pin, False)
+#                print(i)
+                if i == 0:
+                     #dot
+                     time.sleep(dot)
+                elif i == 1:
+                     #Das
+                     time.sleep(dash)
+
+                GPIO.output(out_pin, True)
+                time.sleep(dot)
+
+            GPIO.output(out_pin, True)
+            time.sleep(letter_space)
+
+for i in range(10):
+    sendMorse(test_send)
+#while True:
+#    GPIO.output(out_pin, out_state)
+#    out_state = not out_state
+#    time.sleep(random.uniform(0.01, 0.25))
 
 GPIO.cleanup()
