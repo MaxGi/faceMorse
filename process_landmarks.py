@@ -100,9 +100,9 @@ class FaceAalysis:
         # Iterate over detected faces (here, max_num_faces = 1, so usually one face)
         relative_landmarks = []
         if oak:
-            relative_landmarks = self.relativeValue(faceLms, img)
+            relative_landmarks = self.relativeValue(faceLms, img, oak)
         else:
-            relative_landmarks = self.relativeValue(faceLms.landmark, img)
+            relative_landmarks = self.relativeValue(faceLms.landmark, img, oak)
         
         for i, pnt in enumerate(relative_landmarks):
             # Store the coordinates of all landmarks
