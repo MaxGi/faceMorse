@@ -16,7 +16,6 @@ active_model = False
 
 
 mouth_model = Model(model_name="mouth_model", data_key="mouth_landmarks")
-
 mouth_model.loadModel()
 
 # Confidence threshold for the facemesh model

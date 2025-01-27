@@ -62,7 +62,7 @@ class FaceAalysis:
         for i, lm in enumerate(data):
             h, w, ic = img.shape
             if oak:
-                x, y = int(lm[0] * w), int(lm[1] * h)
+                x, y = int(lm[0]), int(lm[1])
             else:
                 x, y = int(lm.x * w), int(lm.y * h)  # Convert normalized coordinates to pixel values
             if i == 0:
