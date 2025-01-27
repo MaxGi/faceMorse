@@ -55,13 +55,16 @@ class FaceAalysis:
         self.landmarks["all_landmarks"] = [] 
         self.landmarks["face_points"] = []
         
-    def relativeValue(self, data, img):
+    def relativeValue(self, data, img, oak=False):
         self.landmarks["face_points"] = []
         pnt_zero = (0,0)
         out_data = []
         for i, lm in enumerate(data):
             h, w, ic = img.shape
-            x, y = int(lm.x * w), int(lm.y * h)  # Convert normalized coordinates to pixel values
+            if oak:
+                x, y = int(lm[0] * w), int(lm[1] * h)
+            else:
+                x, y = int(lm.x * w), int(lm.y * h)  # Convert normalized coordinates to pixel values
             if i == 0:
                 pnt_zero = (x, y)
             else:
