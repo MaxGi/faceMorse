@@ -73,7 +73,7 @@ class FaceAalysis:
             
         return out_data
         
-    def sortData(self, faceLms, img):
+    def sortData(self, faceLms, img, oak=False):
         self.landmarks = {}
         self.landmarks["left_eye_landmarks"] = []
         self.landmarks["right_eye_landmarks"] = []
@@ -93,9 +93,13 @@ class FaceAalysis:
         self.landmarks["nose_height"] = []
         self.landmarks["nose_width"] = []
         self.landmarks["all_landmarks"] = [] 
-        # Iterate over detected faces (here, max_num_faces = 1, so usually one face)
         
-        relative_landmarks = self.relativeValue(faceLms.landmark, img)
+        # Iterate over detected faces (here, max_num_faces = 1, so usually one face)
+        relative_landmarks = []
+        if oak:
+            relative_landmarks = self.relativeValue(faceLms, img)
+        else:
+            relative_landmarks = self.relativeValue(faceLms.landmark, img)
         
         for i, pnt in enumerate(relative_landmarks):
             # Store the coordinates of all landmarks

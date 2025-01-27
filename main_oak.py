@@ -73,8 +73,7 @@ def cb(packet: TwoStagePacket):
         img_det: dai.ImgDetection = det.img_detection
         det_bb = pre_det_crop_bb.get_relative_bbox(BoundingBox(img_det))
         
-        face_data = face_analysis.sortData(imgLdms.landmarks, out_frame) 
-
+        print("Landmarks: ", imgLdms.landmarks)
         padding_bb = det_bb.add_padding(0.05, pre_det_crop_bb)
         draw_rect(frame_full, (0, 0, 255), *padding_bb.denormalize(frame_full.shape))
         #for i, (name, age) in enumerate(zip(names, ages)):
@@ -86,6 +85,9 @@ def cb(packet: TwoStagePacket):
 
             #print(mapped_ldm)
             cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 250, 250), thickness=-1)
+            
+        face_data = face_analysis.sortData(smooth, out_frame, oak=True) 
+        print("DATA: ", face_data)
             
         #if face_data is not None and not training:
             #prediction = eye_model.predict(face_data)

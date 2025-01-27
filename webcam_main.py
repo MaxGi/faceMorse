@@ -37,7 +37,8 @@ while cap.isOpened():
     if results.multi_face_landmarks:
         
         for face_landmarks in results.multi_face_landmarks: 
-            face_data = face_analysis.sortData(face_landmarks, image)           
+            face_data = face_analysis.sortData(face_landmarks, image, True)           
+            print("DATA: ", face_landmarks)
             for pt in face_data["face_points"]:
                 x = pt[0]
                 y = pt[1]
