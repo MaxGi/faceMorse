@@ -7,6 +7,9 @@ import depthai as dai
 import screeninfo
 import numpy as np
 
+from process_landmarks import FaceAalysis
+from model import Model
+
 #import PySimpleGUI as sg
 
 
@@ -39,6 +42,8 @@ cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
 cv2.moveWindow(window_name, screen.x - 1, screen.y - 1)
 cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
 
+face_analysis = FaceAalysis()
+
 last_landmarks = []
 
 # We will be saving the passthrough frames so we can draw landmarks on it
@@ -67,6 +72,8 @@ def cb(packet: TwoStagePacket):
 
         img_det: dai.ImgDetection = det.img_detection
         det_bb = pre_det_crop_bb.get_relative_bbox(BoundingBox(img_det))
+        
+        face_data = face_analysis.sortData(imgLdms.landmarks, out_frame) 
 
         padding_bb = det_bb.add_padding(0.05, pre_det_crop_bb)
         draw_rect(frame_full, (0, 0, 255), *padding_bb.denormalize(frame_full.shape))
@@ -79,6 +86,10 @@ def cb(packet: TwoStagePacket):
 
             #print(mapped_ldm)
             cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 250, 250), thickness=-1)
+            
+        #if face_data is not None and not training:
+            #prediction = eye_model.predict(face_data)
+            #print("Prediction", prediction)
 
     cv2.imshow(window_name, out_frame)
 
