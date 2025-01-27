@@ -12,6 +12,12 @@ from model import Model
 
 #import PySimpleGUI as sg
 
+active_model = False
+
+
+mouth_model = Model(model_name="mouth_model", data_key="mouth_landmarks")
+
+mouth_model.loadModel()
 
 # Confidence threshold for the facemesh model
 THRESHOLD = 0.3
@@ -73,7 +79,6 @@ def cb(packet: TwoStagePacket):
         img_det: dai.ImgDetection = det.img_detection
         det_bb = pre_det_crop_bb.get_relative_bbox(BoundingBox(img_det))
         
-        print("Landmarks: ", imgLdms.landmarks)
         padding_bb = det_bb.add_padding(0.05, pre_det_crop_bb)
         draw_rect(frame_full, (0, 0, 255), *padding_bb.denormalize(frame_full.shape))
         #for i, (name, age) in enumerate(zip(names, ages)):
@@ -87,11 +92,10 @@ def cb(packet: TwoStagePacket):
             cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 250, 250), thickness=-1)
             
         face_data = face_analysis.sortData(smooth, out_frame, oak=True) 
-        print("DATA: ", face_data)
             
-        #if face_data is not None and not training:
-            #prediction = eye_model.predict(face_data)
-            #print("Prediction", prediction)
+        if face_data is not None and active_model:
+            prediction = mouth_model.predict(face_data)
+            print("Prediction", prediction)
 
     cv2.imshow(window_name, out_frame)
 
