@@ -6,6 +6,8 @@ import cv2
 import depthai as dai
 import screeninfo
 import numpy as np
+from morse import MorseSender
+import time
 
 from process_landmarks import FaceAalysis
 from model import Model
@@ -15,8 +17,22 @@ from model import Model
 active_model = False
 
 
-mouth_model = Model(model_name="mouth_model", data_key="mouth_landmarks")
+mouth_model = Model(model_name="mouth_model", data_key="mouth_landmarks", model_type="regression")
+nose_model = Model(model_name="nose_model", data_key="nose_landmarks", model_type="regression")
+eyes_model = Model(model_name="eye_model", data_key="eyes_landmarks")
+eybrow_model = Model(model_name="eybrow_model", data_key="eyebrows_landmarks")
+mouth_angle_model = Model(model_name="mouth_angle_model", data_key="mouth_landmarks")
+
 mouth_model.loadModel()
+nose_model.loadModel()
+eyes_model.loadModel()
+eybrow_model.loadModel()
+mouth_angle_model.loadModel()
+
+sender = MorseSender()
+
+send_feature = 0
+
 
 # Confidence threshold for the facemesh model
 THRESHOLD = 0.3
@@ -92,10 +108,29 @@ def cb(packet: TwoStagePacket):
             
         face_data = face_analysis.sortData(smooth, out_frame, oak=True) 
             
-        if face_data is not None and active_model:
-            prediction = mouth_model.predict(face_data)
-            print("Prediction", prediction)
-
+        if face_data:
+            global send_feature
+            prediction = None
+            if send_feature == 0:
+                prediction = mouth_model.predict(face_data)
+                print("Prediction Mouth:", prediction)
+            elif send_feature == 1:
+                prediction = eyes_model.predict(face_data)
+                print("Prediction Eyes:", prediction)
+            elif send_feature == 2:
+                prediction = nose_model.predict(face_data)
+                print("Prediction Nose:", prediction)
+            elif send_feature == 3:
+                prediction = eybrow_model.predict(face_data)
+                print("Prediction Eyebrow:", prediction)
+            elif send_feature == 4:
+                prediction = mouth_angle_model.predict(face_data)
+                print("Prediction Mouth Angle:", prediction)
+            if prediction is not None:
+                sender.send(prediction)
+                send_feature = send_feature + 1
+                send_feature = send_feature % 5
+                
     cv2.imshow(window_name, out_frame)
 
 with OakCamera() as oak:

@@ -74,7 +74,7 @@ while cap.isOpened():
         prediction = eybrow_model.predict(face_data)
         print("Prediction Eyebrow:", prediction)
         prediction = mouth_angle_model.predict(face_data)
-        print("Prediction Outline:", prediction)
+        print("Prediction Mouth Angle:", prediction)
         
     
     if training:
