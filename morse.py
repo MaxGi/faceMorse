@@ -70,12 +70,13 @@ class MorseSender:
     
 
     def send(self, mess):
-        print("Sending message:", mess)
         try:
             mess = mess.upper()
         except:
             mess = str(mess[0])
-            return
+            
+        print("Sending message:", mess)
+            
         for letter in mess:
             if letter == " ":
                 print(" ")
