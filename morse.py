@@ -73,7 +73,7 @@ class MorseSender:
         try:
             mess = mess.upper()
         except:
-            mess = str(mess[0])
+            mess = str(int(mess[0]))
             
         print("Sending message:", mess)
             
