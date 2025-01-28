@@ -70,6 +70,7 @@ class MorseSender:
     
 
     def send(self, mess):
+        print("Sending message:", mess)
         mess = mess.upper()
         for letter in mess:
             if letter == " ":
