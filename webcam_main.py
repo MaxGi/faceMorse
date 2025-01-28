@@ -9,14 +9,23 @@ face_mesh = mp_face_mesh.FaceMesh()
 face_analysis = FaceAalysis()
 
 # Open webcam
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
-eye_model = Model(model_name="mouth_model", data_key="mouth_landmarks")
+mouth_model = Model(model_name="mouth_model", data_key="mouth_landmarks", model_type="regression")
+nose_model = Model(model_name="nose_model", data_key="nose_landmarks", model_type="regression")
+eyes_model = Model(model_name="eye_model", data_key="eyes_landmarks")
+eybrow_model = Model(model_name="eybrow_model", data_key="eyebrows_landmarks")
+mouth_angle_model = Model(model_name="mouth_angle_model", data_key="mouth_landmarks")
+
 
 training = False
 
 if not training:
-    eye_model.loadModel()
+    mouth_model.loadModel()
+    nose_model.loadModel()
+    eyes_model.loadModel()
+    eybrow_model.loadModel()
+    mouth_angle_model.loadModel()
 
 while cap.isOpened():
     success, image = cap.read()
@@ -43,8 +52,6 @@ while cap.isOpened():
                 x = pt[0]
                 y = pt[1]
                 cv2.circle(image, (x, y), 1, (0, 255, 0), -1)
-
-    
     
     if training:
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -58,24 +65,51 @@ while cap.isOpened():
     cv2.imshow('Face Mesh', image)
     
     if face_data is not None and not training:
-        prediction = eye_model.predict(face_data)
-        print("Prediction", prediction)
+        prediction = mouth_model.predict(face_data)
+        print("Prediction Mouth:", prediction)
+        prediction = eyes_model.predict(face_data)
+        print("Prediction Eyes:", prediction)
+        prediction = nose_model.predict(face_data)
+        print("Prediction Nose:", prediction)
+        prediction = eybrow_model.predict(face_data)
+        print("Prediction Eyebrow:", prediction)
+        prediction = mouth_angle_model.predict(face_data)
+        print("Prediction Outline:", prediction)
+        
     
     if training:
         text_in = input("Classify: ")
         if text_in != "":
             text_in_split = text_in.split()
+            # GO SMALL AND LARGE
             if text_in_split[0] == "0":
+                print("Add mouth")
+                mouth_model.rec(face_data, text_in_split[1])
+            if text_in_split[0] == "1":
                 print("Add eye")
-                eye_model.rec(face_data, text_in_split[1])
+                eyes_model.rec(face_data, text_in_split[1])
+            if text_in_split[0] == "2":
+                print("Add nose")
+                nose_model.rec(face_data, text_in_split[1])
+            if text_in_split[0] == "3":
+                print("Add eybrow")
+                eybrow_model.rec(face_data, text_in_split[1])
+            if text_in_split[0] == "4":
+                print("Add eybrow")
+                mouth_angle_model.rec(face_data, text_in_split[1])
             elif text_in_split[0] == "s":
                 print("Train")
-                eye_model.train()
+                mouth_model.train()
+                eyes_model.train()
+                nose_model.train()
+                eybrow_model.train()
+                mouth_angle_model.train()
                 training = False
-                eye_model.saveModel()
-            elif text_in_split[0] == "t":
-                print("Train")
-                eye_model.train()
+                mouth_model.saveModel()
+                eyes_model.saveModel()
+                nose_model.saveModel()
+                eybrow_model.saveModel()
+                mouth_angle_model.saveModel()
                 
     if cv2.waitKey(5) & 0xFF == 27:
         break

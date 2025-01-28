@@ -38,6 +38,8 @@ class FaceAalysis:
         self.landmarks = {}
         self.landmarks["left_eye_landmarks"] = []
         self.landmarks["right_eye_landmarks"] = []
+        self.landmarks["eyes_landmarks"] = []
+        self.landmarks["eyebrows_landmarks"] = []
         self.landmarks["left_iris_landmarks"] = []
         self.landmarks["right_iris_landmarks"] = []
         self.landmarks["nose_landmarks"] = []
@@ -87,6 +89,9 @@ class FaceAalysis:
         self.landmarks["mouth_landmarks"] = []
         self.landmarks["head_border_landmarks"] = []
         self.landmarks["face_outline"] = [] 
+        
+        self.landmarks["eyes_landmarks"] = []
+        self.landmarks["eyebrows_landmarks"] = []
     
         self.landmarks["left_eyebrow"] = [] 
         self.landmarks["right_eyebrow"] = [] 
@@ -111,12 +116,16 @@ class FaceAalysis:
             # Store specific feature landmarks based on the predefined indices
             if i in self.LEFT_EYE_LANDMARKS:
                 self.landmarks["left_eye_landmarks"].append(pnt)  # Left eye
+                self.landmarks["eyes_landmarks"].append(pnt)  # Both eyes
             if i in self.RIGHT_EYE_LANDMARKS:
                 self.landmarks["right_eye_landmarks"].append(pnt)  # Right eye
+                self.landmarks["eyes_landmarks"].append(pnt)  # Both eyes
             if i in self.LEFT_IRIS_LANDMARKS:
                 self.landmarks["left_iris_landmarks"].append(pnt)  # Left iris
+                self.landmarks["eyes_landmarks"].append(pnt)  # Both eyes
             if i in self.RIGHT_IRIS_LANDMARKS:
                 self.landmarks["right_iris_landmarks"].append(pnt)  # Right iris
+                self.landmarks["eyes_landmarks"].append(pnt)  # Both eyes
             if i in self.NOSE_LANDMARKS:
                 self.landmarks["nose_landmarks"].append(pnt)  # Nose
             if i in self.MOUTH_LANDMARKS:
@@ -125,8 +134,12 @@ class FaceAalysis:
                 self.landmarks["face_outline"].append(pnt)  # Mouth
             if i in self.LEFT_EYEBROW_LANDMARKS:
                 self.landmarks["left_eyebrow"].append(pnt)
+                self.landmarks["eyebrows_landmarks"].append(pnt)
+                
             if i in self.RIGHT_EYEBROW_LANDMARKS:
                 self.landmarks["right_eyebrow"].append(pnt)
+                self.landmarks["eyebrows_landmarks"].append(pnt)
+                
             if i in self.MOUTH_OPENNESS_LANDMARKS:
                 self.landmarks["mouth_openness"].append(pnt)
             if i in self.LEFT_EYE_OPENNESS_LANDMARKS:

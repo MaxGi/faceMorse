@@ -6,7 +6,7 @@ import joblib
 
 #Master model class
 class Model:
-    def __init__(self, model_name, data_key):
+    def __init__(self, model_name, data_key, model_type="classification"):
         self.training_input = []
         self.training_output = []
         self.training_output_model = []
@@ -14,7 +14,7 @@ class Model:
         self.data_key = data_key
         self.model_name = model_name
                 
-        self.model_type = "classification"
+        self.model_type = model_type
         self.model = None
                 
         self.isFitted = False
@@ -34,12 +34,20 @@ class Model:
     
     def saveModel(self):
         print("Saving model")
+        if self.model is None:
+            print("Model not trained")
+            return
         joblib.dump(self.model, self.model_name + ".pkl")
     
     def train(self):
         print("Training model in", self.training_input)
         print("Training model out", self.training_output)
         print("Shape", np.shape(self.training_input), np.shape(self.training_output))
+        
+        if len(self.training_output) == 0:
+            print("No training data on", self.model_name)
+            return
+        
         
         output_data = np.transpose(self.training_output)
         print("num outputs", np.shape(self.training_output))
@@ -55,7 +63,6 @@ class Model:
     def predict(self, data):
         flat_prediction_input = np.array(data[self.data_key]).flatten()
         #Pair output data to output paths
-        print("Predicting", flat_prediction_input)
         prediction = self.model.predict([flat_prediction_input])
         return prediction
 
