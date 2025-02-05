@@ -11,6 +11,7 @@ import time
 
 from process_landmarks import FaceAalysis
 from model import Model
+import threading
 
 #import PySimpleGUI as sg
 
@@ -116,7 +117,7 @@ def cb(packet: TwoStagePacket):
             smooth[i][1] = 0.9 * smooth[i][1] + 0.1 * mapped_ldm[1]
 
             #print(mapped_ldm)
-            if morse_open:
+            if sender.send_open:
                  cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 0, 250), thickness=-1)
             else:
                  cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 250, 250), thickness=-1)
@@ -142,9 +143,11 @@ def cb(packet: TwoStagePacket):
                 print("Prediction Mouth Angle:", prediction)
 
     cv2.imshow(window_name, out_frame)
-    if prediction is not None and morse_open:
-        sender.send(prediction)
-        timer = time.time()
+    if prediction and morse_open and not sender.send_open:
+        
+        sender.setMess(prediction)
+        sender.start()
+        
         send_feature = send_feature + 1
         send_feature = send_feature % 5
 

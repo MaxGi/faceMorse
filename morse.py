@@ -1,11 +1,18 @@
 import RPi.GPIO as GPIO
 import time
 import random
+import threading
 
 
 #Master model class
 class MorseSender:
     def __init__(self, time_unit=0.5):
+        threading.Thread.__init__(self)
+        
+        self.sending = False
+        self.send_open = True
+        self.out_mess = None
+        
         self.time_unit = time_unit
         self.letter_space = 3 * self.time_unit
         self.word_space = 7 * self.time_unit
@@ -67,14 +74,27 @@ class MorseSender:
     def __exit__(self, exc_type, exc_value, exc_traceback):
         print('exit method called')
         GPIO.cleanup()
-    
+        
+    def setMess(self, mess):
+        self.out_mess = mess
 
-    def send(self, mess):
+    def run(self):
+        
+        if self.out_mess == None:
+            self.sending = False
+            self.send_open = True
+            return
+        
+        mess = self.out_mess
+        
         print("Try send")
         try:
             mess = mess.upper()
         except:
             mess = str(int(mess[0]))
+            
+        self.sending = True
+        self.send_open = False
             
         print("Sending message:", mess)
             
@@ -100,3 +120,7 @@ class MorseSender:
 
                 GPIO.output(self.out_pin, False)
                 time.sleep(self.letter_space)
+        self.sending = False
+        time.sleep(4)
+        self.send_open = True
+        
