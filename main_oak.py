@@ -128,28 +128,29 @@ def cb(packet: TwoStagePacket):
             global send_feature
             if send_feature == 0:
                 prediction = mouth_model.predict(face_data)
-                print("Prediction Mouth:", prediction)
+#                print("Prediction Mouth:", prediction)
             elif send_feature == 1:
                 prediction = eyes_model.predict(face_data)
-                print("Prediction Eyes:", prediction)
+#                print("Prediction Eyes:", prediction)
             elif send_feature == 2:
                 prediction = nose_model.predict(face_data)
-                print("Prediction Nose:", prediction)
+#                print("Prediction Nose:", prediction)
             elif send_feature == 3:
                 prediction = eybrow_model.predict(face_data)
-                print("Prediction Eyebrow:", prediction)
+#                print("Prediction Eyebrow:", prediction)
             elif send_feature == 4:
                 prediction = mouth_angle_model.predict(face_data)
-                print("Prediction Mouth Angle:", prediction)
+#                print("Prediction Mouth Angle:", prediction)
 
     cv2.imshow(window_name, out_frame)
-    if prediction and morse_open and not sender.send_open:
-        
+    if prediction and sender.send_open:
+        print("Check")
         sender.setMess(prediction)
         sender.start()
         
         send_feature = send_feature + 1
         send_feature = send_feature % 5
+    #print(sender.send_open, prediction)
 
 with OakCamera() as oak:
 

@@ -5,15 +5,15 @@ import threading
 
 
 #Master model class
-class MorseSender:
-    def __init__(self, time_unit=0.5):
+class MorseSender(threading.Thread):
+    def __init__(self, ):
         threading.Thread.__init__(self)
         
         self.sending = False
         self.send_open = True
         self.out_mess = None
         
-        self.time_unit = time_unit
+        self.time_unit = 0.5
         self.letter_space = 3 * self.time_unit
         self.word_space = 7 * self.time_unit
         self.dash = 3 * self.time_unit
@@ -66,10 +66,6 @@ class MorseSender:
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.out_pin, GPIO.OUT)
         GPIO.output(self.out_pin, out_state)
-
-    def __enter__(self):
-        print('enter method called')
-        return self
          
     def __exit__(self, exc_type, exc_value, exc_traceback):
         print('exit method called')
@@ -123,4 +119,5 @@ class MorseSender:
         self.sending = False
         time.sleep(4)
         self.send_open = True
+        GPIO.cleanup()
         
