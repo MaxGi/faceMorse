@@ -117,7 +117,7 @@ def cb(packet: TwoStagePacket):
             smooth[i][1] = 0.9 * smooth[i][1] + 0.1 * mapped_ldm[1]
 
             #print(mapped_ldm)
-            if sender.send_open:
+            if sender.sending:
                  cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 0, 250), thickness=-1)
             else:
                  cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 250, 250), thickness=-1)
@@ -145,8 +145,7 @@ def cb(packet: TwoStagePacket):
     cv2.imshow(window_name, out_frame)
     if prediction and sender.send_open:
         print("Check")
-        sender.setMess(prediction)
-        sender.start()
+        sender.send(prediction)
         
         send_feature = send_feature + 1
         send_feature = send_feature % 5

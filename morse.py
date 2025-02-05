@@ -2,12 +2,17 @@ import RPi.GPIO as GPIO
 import time
 import random
 import threading
+import queue
 
 
 #Master model class
-class MorseSender(threading.Thread):
+class MorseSender:
     def __init__(self, ):
-        threading.Thread.__init__(self)
+        
+        self.q = queue.Queue()
+        t = threading.Thread(target=self.looper)
+        t.daemon = True
+        t.start()
         
         self.sending = False
         self.send_open = True
@@ -71,10 +76,14 @@ class MorseSender(threading.Thread):
         print('exit method called')
         GPIO.cleanup()
         
-    def setMess(self, mess):
+    def send(self, mess):
         self.out_mess = mess
-
-    def run(self):
+        
+    def looper(self):
+        while True:
+            self.sender()
+            
+    def sender(self):
         
         if self.out_mess == None:
             self.sending = False
@@ -118,6 +127,6 @@ class MorseSender(threading.Thread):
                 time.sleep(self.letter_space)
         self.sending = False
         time.sleep(4)
+        self.out_mess = None
         self.send_open = True
-        GPIO.cleanup()
         
