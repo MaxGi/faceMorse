@@ -9,11 +9,6 @@ import queue
 class MorseSender:
     def __init__(self, ):
         
-        self.q = queue.Queue()
-        t = threading.Thread(target=self.looper)
-        t.daemon = True
-        t.start()
-        
         self.sending = False
         self.send_open = True
         self.out_mess = None
@@ -71,6 +66,12 @@ class MorseSender:
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.out_pin, GPIO.OUT)
         GPIO.output(self.out_pin, out_state)
+        
+        
+        self.q = queue.Queue()
+        t = threading.Thread(target=self.looper)
+        t.daemon = True
+        t.start()
          
     def __exit__(self, exc_type, exc_value, exc_traceback):
         print('exit method called')
