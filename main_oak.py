@@ -67,6 +67,9 @@ face_analysis = FaceAalysis()
 
 last_landmarks = []
 
+time_reset = True
+timer = 0
+
 # We will be saving the passthrough frames so we can draw landmarks on it
 pass_f = None
 def pass_cb(packet):
@@ -77,7 +80,7 @@ def draw_rect(frame, color, top_left, bottom_right):
     cv2.rectangle(frame, top_left, bottom_right, color, 1)
 
 def cb(packet: TwoStagePacket):
-    global pass_f
+    global pass_f, timer
     vis: Visualizer = packet.visualizer
     frame_full = packet.frame
 
@@ -85,10 +88,19 @@ def cb(packet: TwoStagePacket):
 
     out_frame = np.zeros([720,1280,3],dtype=np.uint8)
     out_frame.fill(0) # or img[:] = 255
+    prediction = None
+    morse_open = False
+
+    if time.time() - timer > 4:
+        morse_open = True
 
     for det, imgLdms in zip(packet.detections, packet.nnData):
-        if imgLdms is None or imgLdms.landmarks is None:
+        if imgLdms is None:
             continue
+
+        if imgLdms.landmarks is None:
+            continue
+
         imgLdms: ImgLandmarks
 
         img_det: dai.ImgDetection = det.img_detection
@@ -104,13 +116,15 @@ def cb(packet: TwoStagePacket):
             smooth[i][1] = 0.9 * smooth[i][1] + 0.1 * mapped_ldm[1]
 
             #print(mapped_ldm)
-            cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 250, 250), thickness=-1)
+            if morse_open:
+                 cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 0, 250), thickness=-1)
+            else:
+                 cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 250, 250), thickness=-1)
             
         face_data = face_analysis.sortData(smooth, out_frame, oak=True) 
             
         if face_data:
             global send_feature
-            prediction = None
             if send_feature == 0:
                 prediction = mouth_model.predict(face_data)
                 print("Prediction Mouth:", prediction)
@@ -126,12 +140,13 @@ def cb(packet: TwoStagePacket):
             elif send_feature == 4:
                 prediction = mouth_angle_model.predict(face_data)
                 print("Prediction Mouth Angle:", prediction)
-            if prediction is not None:
-                sender.send(prediction)
-                send_feature = send_feature + 1
-                send_feature = send_feature % 5
-                
+
     cv2.imshow(window_name, out_frame)
+    if prediction is not None and morse_open:
+        sender.send(prediction)
+        timer = time.time()
+        send_feature = send_feature + 1
+        send_feature = send_feature % 5
 
 with OakCamera() as oak:
 

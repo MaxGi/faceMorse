@@ -5,7 +5,7 @@ import random
 
 #Master model class
 class MorseSender:
-    def __init__(self, time_unit=0.05):
+    def __init__(self, time_unit=0.5):
         self.time_unit = time_unit
         self.letter_space = 3 * self.time_unit
         self.word_space = 7 * self.time_unit
@@ -70,6 +70,7 @@ class MorseSender:
     
 
     def send(self, mess):
+        print("Try send")
         try:
             mess = mess.upper()
         except:
@@ -80,12 +81,12 @@ class MorseSender:
         for letter in mess:
             if letter == " ":
                 print(" ")
-                GPIO.output(self.out_pin, True)
+                GPIO.output(self.out_pin, False)
                 time.sleep(self.word_space)
             else:
                 print(letter)
                 for i in self.morse_alphabet[letter]:
-                    GPIO.output(self.out_pin, False)
+                    GPIO.output(self.out_pin, True)
     #                print(i)
                     if i == 0:
                         #dot
@@ -94,8 +95,8 @@ class MorseSender:
                         #Das
                         time.sleep(self.dash)
 
-                    GPIO.output(self.out_pin, True)
+                    GPIO.output(self.out_pin, False)
                     time.sleep(self.dot)
 
-                GPIO.output(self.out_pin, True)
+                GPIO.output(self.out_pin, False)
                 time.sleep(self.letter_space)
