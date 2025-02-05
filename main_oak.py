@@ -116,11 +116,9 @@ def cb(packet: TwoStagePacket):
             smooth[i][0] = 0.9 * smooth[i][0] + 0.1 * mapped_ldm[0]
             smooth[i][1] = 0.9 * smooth[i][1] + 0.1 * mapped_ldm[1]
 
+            cv2.circle(out_frame, center=mapped_ldm, radius=3, color=(250, 250, 250), thickness=-1)
+
             #print(mapped_ldm)
-            if sender.sending:
-                 cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 0, 250), thickness=-1)
-            else:
-                 cv2.circle(out_frame, center=mapped_ldm, radius=2, color=(250, 250, 250), thickness=-1)
             
         face_data = face_analysis.sortData(smooth, out_frame, oak=True) 
             

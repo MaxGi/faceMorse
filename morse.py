@@ -107,12 +107,12 @@ class MorseSender:
         for letter in mess:
             if letter == " ":
                 print(" ")
-                GPIO.output(self.out_pin, False)
+                GPIO.output(self.out_pin, True)
                 time.sleep(self.word_space)
             else:
                 print(letter)
                 for i in self.morse_alphabet[letter]:
-                    GPIO.output(self.out_pin, True)
+                    GPIO.output(self.out_pin, False)
     #                print(i)
                     if i == 0:
                         #dot
@@ -121,10 +121,10 @@ class MorseSender:
                         #Das
                         time.sleep(self.dash)
 
-                    GPIO.output(self.out_pin, False)
+                    GPIO.output(self.out_pin, True)
                     time.sleep(self.dot)
 
-                GPIO.output(self.out_pin, False)
+                GPIO.output(self.out_pin, True)
                 time.sleep(self.letter_space)
         self.sending = False
         time.sleep(4)
