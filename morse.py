@@ -13,7 +13,7 @@ class MorseSender:
         self.send_open = True
         self.out_mess = None
         
-        self.time_unit = 0.25
+        self.time_unit = 0.5
         self.letter_space = 3 * self.time_unit
         self.word_space = 7 * self.time_unit
         self.dash = 3 * self.time_unit
@@ -127,7 +127,7 @@ class MorseSender:
                 GPIO.output(self.out_pin, True)
                 time.sleep(self.letter_space)
         self.sending = False
-        time.sleep(16)
+        time.sleep(32)
         self.out_mess = None
         self.send_open = True
         
